@@ -48,7 +48,39 @@ interface TeamRepositoryInterface
      */
     public function update($team_id, $post_data);
 
+    /**
+     * @param $team_id
+     * @return int
+     */
+    public function getMatchesPlayedCount($team_id);
 
+    /**
+     * @param $team_id
+     * @return int
+     */
+    public function getWinsCount($team_id);
 
+    /**
+     * @param $team_id
+     * @return int
+     */
+    public function getDrawnCounts($team_id);
 
+    /**
+     * @param $team_id
+     * @return mixed
+     */
+    public function getLosesCount($team_id);
+
+    /**
+     * @param $team_id
+     * @return int
+     */
+    public function getGoalsCount($team_id);
+
+    /**
+     * @param $team_id
+     * @return int
+     */
+    public function getGoalsConcededCount($team_id);
 }

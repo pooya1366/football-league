@@ -4,11 +4,11 @@
 namespace App\Repositories;
 
 
+use App\Match;
 use App\Team;
 
 class TeamRepository implements TeamRepositoryInterface
 {
-
     /**
      *
      * @param array
@@ -67,5 +67,55 @@ class TeamRepository implements TeamRepositoryInterface
     public function getTeamsOrderDescByPts()
     {
         return Team::orderBy('pts', 'desc')->get();
+    }
+
+    public function getDrawnCounts($team_id)
+    {
+        return Match::where(function($query) use($team_id) {
+            $query->where('home_team_id', $team_id)
+                ->orWhere('away_team_id', $team_id);
+        })->where('done', true)
+            ->where('winner_team_id', null)
+            ->count();
+    }
+
+    public function getGoalsConcededCount($team_id)
+    {
+        return Match::where('done', true)->where('home_team_id', $team_id)->sum('away_team_goals') +
+            Match::where('done')->where('away_team_id', $team_id)->sum('home_team_goals');
+    }
+
+    public function getGoalsCount($team_id)
+    {
+        return Match::where('done', true)->where('home_team_id', $team_id)->sum('home_team_goals') +
+            Match::where('done')->where('away_team_id', $team_id)->sum('away_team_goals');
+    }
+
+    public function getLosesCount($team_id)
+    {
+        return Match::where(function($query) use($team_id) {
+            $query->where('home_team_id', $team_id)
+                ->orWhere('away_team_id', $team_id);
+        })->where('done', true)
+            ->where('looser_team_id', $team_id)
+            ->count();
+    }
+
+    public function getMatchesPlayedCount($team_id)
+    {
+        return  Match::where(function($query) use($team_id) {
+            $query->where('home_team_id', $team_id)
+                ->orWhere('away_team_id', $team_id);
+        })->where('done', true)
+            ->count();
+    }
+    public function getWinsCount($team_id)
+    {
+        return Match::where(function($query) use($team_id) {
+            $query->where('home_team_id', $team_id)
+                ->orWhere('away_team_id', $team_id);
+        })->where('done', true)
+            ->where('winner_team_id', $team_id)
+            ->count();
     }
 }

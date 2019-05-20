@@ -3,10 +3,21 @@
 namespace App\Observers;
 
 use App\Match;
+use App\Repositories\TeamRepositoryInterface;
 use App\Team;
 
 class MatchObserver
 {
+
+    /**
+     * MatchObserver constructor.
+     * @param TeamRepositoryInterface $teams
+     */
+    public function __construct(TeamRepositoryInterface $teams)
+    {
+        $this->teams = $teams;
+    }
+
     /**
      * Handle the match "created" event.
      *
@@ -65,51 +76,17 @@ class MatchObserver
 
     private function updateTeamStatistics($team_id)
     {
-        /*$team = Team::find($team_id);
+        $played_counts = $this->teams->getMatchesPlayedCount($team_id);
 
-        if($team) {
-            $team->p = $team->getMatchesPlayedCount();
-            $team->w = $team->getHomeWinsCount() + $team->getAwayWinsCount();
-            $team->d = $team->getDrawnCount();
-            $team->l = $team->getHomeLoseCount() + $team->getAwayLoseCount();
-            $team->gd = $team->getHomeGoalsCount() + $team->getAwayGoalsCount() -
-                $team->getHomeGoalsConcededCount() - $team->getAwayGoalsConcededCount();
-            $team->save();
-        }*/
+        $wins_count = $this->teams->getWinsCount($team_id);
 
-        $played_counts = Match::where(function($query) use($team_id) {
-            $query->where('home_team_id', $team_id)
-                ->orWhere('away_team_id', $team_id);
-        })->where('done', true)
-            ->count();
+        $drawn_count = $this->teams->getDrawnCounts($team_id);
 
-        $wins_count = Match::where(function($query) use($team_id) {
-            $query->where('home_team_id', $team_id)
-                ->orWhere('away_team_id', $team_id);
-        })->where('done', true)
-            ->where('winner_team_id', $team_id)
-            ->count();
+        $loses_count = $this->teams->getLosesCount($team_id);
 
-        $drawn_count = Match::where(function($query) use($team_id) {
-            $query->where('home_team_id', $team_id)
-                ->orWhere('away_team_id', $team_id);
-        })->where('done', true)
-            ->where('winner_team_id', null)
-            ->count();
+        $goals = $this->teams->getGoalsCount($team_id);
 
-        $loss_count = Match::where(function($query) use($team_id) {
-            $query->where('home_team_id', $team_id)
-                ->orWhere('away_team_id', $team_id);
-        })->where('done', true)
-            ->where('looser_team_id', $team_id)
-            ->count();
-
-        $goals = Match::where('done', true)->where('home_team_id', $team_id)->sum('home_team_goals') +
-            Match::where('done')->where('away_team_id', $team_id)->sum('away_team_goals');
-
-
-        $goals_conceded = Match::where('done', true)->where('home_team_id', $team_id)->sum('away_team_goals') +
-            Match::where('done')->where('away_team_id', $team_id)->sum('home_team_goals');
+        $goals_conceded = $this->teams->getGoalsConcededCount($team_id);
 
         Team::where('_id', $team_id)
             ->update([
@@ -117,7 +94,7 @@ class MatchObserver
                 'p' => $played_counts,
                 'w' => $wins_count,
                 'd' => $drawn_count,
-                'l' => $loss_count,
+                'l' => $loses_count,
                 'gd' => $goals - $goals_conceded
             ]);
     }
