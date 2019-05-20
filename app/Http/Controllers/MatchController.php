@@ -44,7 +44,6 @@ class MatchController extends Controller
         return view('league_table')
             ->with('matches', $matches)
             ->with('teams', $teams)
-            ->with('teams', $teams)
             ->with('week_number', $week_number)
             ->with('week_number_ordinal', $numberFormatter->format($week_number + 1))
             ->with('has_next_week', $week_number < $total_weeks_count)
