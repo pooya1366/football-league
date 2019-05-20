@@ -66,6 +66,6 @@ class TeamRepository implements TeamRepositoryInterface
      */
     public function getTeamsOrderDescByPts()
     {
-        return Team::orderBy('spi', 'desc')->get();
+        return Team::orderBy('pts', 'desc')->get();
     }
 }
