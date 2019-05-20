@@ -3,10 +3,6 @@
 
 namespace App;
 
-
-use App\Repositories\MatchRepositoryInterface;
-use App\Repositories\TeamRepositoryInterface;
-
 class Team extends \Moloquent
 {
     protected $appends = ['win_score'];
